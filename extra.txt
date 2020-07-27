@@ -1,0 +1,6 @@
+https://developer.apple.com/design/human-interface-guidelines/macos/icons-and-images/app-icon/
+
+https://sudonull.com/post/12576-GUI-on-Golang-GTK-3
+https://github.com/jhekasoft/insteadman3
+
+ffmpeg -i tier_2020-07-19_patreon.mp3 -i tier.jpg -filter_complex "[0:a]aformat=channel_layouts=mono,showwaves=s=1080x600:mode=line:colors=orange[sw];[1][sw]overlay=(W-w)/2:(H-h)/2:format=auto,format=yuv420p[v]" -map "[v]" -map 0:a -vcodec libx265 -crf 28 output.mp4
