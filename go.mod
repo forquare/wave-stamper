@@ -1,4 +1,4 @@
-module github.com/forquare/wave-maker
+module github.com/forquare/wave-stamper
 
 go 1.14
 
