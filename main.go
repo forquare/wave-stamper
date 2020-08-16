@@ -12,13 +12,13 @@ import (
 	flag "github.com/spf13/pflag"
 
 	// Local packages
-	"github.com/forquare/wave-maker/ui"
+	"github.com/forquare/wave-stamper/ui"
 )
 
 var (
 	version = "0.1.0"
-	title   = "Wave Maker"
-	exeName = "wave-maker"
+	title   = "Wave Stamper"
+	exeName = "wave-stamper"
 
 	// Flags
 	fVersion    bool
@@ -38,6 +38,7 @@ func initialiseFlags() {
 
 func main() {
 	initialiseFlags()
+
 	flag.Parse()
 
 	if flag.NArg()+flag.NFlag() == 0 {
