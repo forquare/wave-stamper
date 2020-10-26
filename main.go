@@ -5,9 +5,6 @@ import (
 	"log"
 	"os"
 
-	// Needed for GTK
-	"github.com/gotk3/gotk3/gtk"
-
 	// Do POSIX flags
 	flag "github.com/spf13/pflag"
 
@@ -44,10 +41,7 @@ func main() {
 	if flag.NArg()+flag.NFlag() == 0 {
 		// No arguments/flags, launch GUI
 		log.Println("Launching GUI")
-		gtk.Init(nil)
-		ui.GetMain(title, version)
-		ui.ShowExistingMainWindow()
-		gtk.Main()
+		ui.GetUI(title, version)
 	} else {
 		if fVersion {
 			fmt.Println(exeName, version)

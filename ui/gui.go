@@ -1,197 +1,182 @@
 package ui
 
 import (
-	"log"
-	"os"
 	"path/filepath"
-	"regexp"
 
-	"github.com/gotk3/gotk3/gdk"
-	"github.com/gotk3/gotk3/gtk"
+	"github.com/andlabs/ui"
+	_ "github.com/andlabs/ui/winmanifest"
 
 	"github.com/forquare/wave-stamper/utils"
 )
 
-const (
-	mainFormFilePath = "resources/ui.glade"
-)
-
 var (
-	MainWin *MainWindow
+	mainwin     *ui.Window
+	wintitle    string
+	progversion string
+
+	logopath  string
+	audiopath string
+	videopath string
 )
 
-var signals = map[string]interface{}{
-	"on_logo_file_file_set":     on_logo_file_file_set,
-	"on_mp3_file_file_set":      on_mp3_file_file_set,
-	"on_find_save_file_clicked": on_find_save_file_clicked,
-	"on_submit_clicked":         on_submit_clicked,
-}
+func setupUI() {
+	mainwin = ui.NewWindow(wintitle+" - "+progversion, 335, 200, true)
 
-func ShowExistingMainWindow() *MainWindow {
-	MainWin.Window.Show()
-	MainWin.Window.Present()
-
-	return MainWin
-}
-
-// This is a singleton
-func GetMain(title string, version string) *MainWindow {
-	if MainWin != nil && MainWin.Window.IsVisible() {
-		return MainWin
-	}
-
-	MainWin = MainWindowNew(title, version)
-	return MainWin
-}
-
-type MainWindow struct {
-	Window *gtk.Window
-
-	FcbLogoFile *gtk.FileChooserButton
-	FcbMp3File  *gtk.FileChooserButton
-
-	TxtFilePath *gtk.Entry
-
-	ImgLogoImage *gtk.Image
-
-	BtnFindFile *gtk.Button
-	BtnSubmit   *gtk.Button
-
-	PrgProgress *gtk.ProgressBar
-
-	Title   string
-	Version string
-
-	LogoImagePath string
-	Mp3FilePath   string
-	OutputPath    string
-}
-
-func MainWindowNew(title string, version string) *MainWindow {
-	win := new(MainWindow)
-	win.Version = version
-	win.Title = title
-
-	builder, err := gtk.BuilderNew()
-	if err != nil {
-		log.Fatal("Fatal: %v", err)
-		os.Exit(1)
-	}
-
-	err = builder.AddFromFile(mainFormFilePath)
-	if err != nil {
-		log.Fatal("Fatal: %v", err)
-		os.Exit(1)
-	}
-
-	obj, err := builder.GetObject("main_window")
-	if err != nil {
-		log.Fatal("Fatal: %v", err)
-		os.Exit(1)
-	}
-
-	builder.ConnectSignals(signals)
-
-	var ok bool
-	win.Window, ok = obj.(*gtk.Window)
-	if !ok {
-		log.Fatal("No main window found")
-		os.Exit(1)
-	}
-
-	win.Window.Connect("destroy", func() {
-		gtk.MainQuit()
+	mainwin.OnClosing(func(*ui.Window) bool {
+		ui.Quit()
+		return true
+	})
+	ui.OnShouldQuit(func() bool {
+		mainwin.Destroy()
+		return true
 	})
 
-	win.FcbLogoFile = utils.GetWidget(builder, "logo_file").(*gtk.FileChooserButton)
-	win.ImgLogoImage = utils.GetWidget(builder, "logo_image").(*gtk.Image)
-	win.FcbMp3File = utils.GetWidget(builder, "mp3_file").(*gtk.FileChooserButton)
-	win.TxtFilePath = utils.GetWidget(builder, "save_file_text").(*gtk.Entry)
-	win.BtnFindFile = utils.GetWidget(builder, "find_save_file").(*gtk.Button)
-	win.BtnSubmit = utils.GetWidget(builder, "submit").(*gtk.Button)
-	win.PrgProgress = utils.GetWidget(builder, "progress").(*gtk.ProgressBar)
+	hbox := ui.NewHorizontalBox()
+	hbox.SetPadded(true)
 
-	win.Window.SetTitle(win.Title)
+	leftvbox := ui.NewVerticalBox()
+	leftvbox.SetPadded(true)
+	hbox.Append(leftvbox, true)
 
-	return win
+	grid := ui.NewGrid()
+	grid.SetPadded(true)
+	leftvbox.Append(grid, false)
+
+	// Open Logo Controlls
+	lblOpenLogo := ui.NewLabel("Logo File:")
+	btnOpenLogo := ui.NewButton("...")
+	txtLogo := ui.NewEntry()
+	txtLogo.SetReadOnly(true)
+	btnOpenLogo.OnClicked(func(*ui.Button) {
+		filename := ui.OpenFile(mainwin)
+		ext := filepath.Ext(filename)
+		if filename == "" {
+			return
+		}
+		if ext != ".jpg" && ext != ".jpeg" {
+			ui.MsgBoxError(mainwin,
+				"Only JPEG images supported at this time",
+				"Only files ending in '.jpg' or '.jpeg' are supported.")
+			return
+		}
+		txtLogo.SetText(filename)
+		logopath = filename
+	})
+	grid.Append(lblOpenLogo,
+		0, 0, 1, 1,
+		false, ui.AlignFill, false, ui.AlignFill)
+	grid.Append(txtLogo,
+		0, 1, 1, 1,
+		true, ui.AlignFill, false, ui.AlignFill)
+	grid.Append(btnOpenLogo,
+		1, 1, 1, 1,
+		false, ui.AlignFill, false, ui.AlignFill)
+
+	// Open Audio Controlls
+	lblOpenAudio := ui.NewLabel("Audio File:")
+	btnOpenAudio := ui.NewButton("...")
+	txtAudio := ui.NewEntry()
+	txtAudio.SetReadOnly(true)
+	btnOpenAudio.OnClicked(func(*ui.Button) {
+		filename := ui.OpenFile(mainwin)
+		ext := filepath.Ext(filename)
+		if filename == "" {
+			return
+		}
+		if ext != ".mp3" && ext != ".mpeg3" && ext != ".wav" {
+			ui.MsgBoxError(mainwin,
+				"Only MP3 and wav files are supported at this time",
+				"Only files ending in '.mp3' or '.mpeg3' or '.wav' are supported.")
+			return
+		}
+		txtAudio.SetText(filename)
+		audiopath = filename
+	})
+	grid.Append(lblOpenAudio,
+		0, 2, 1, 1,
+		false, ui.AlignFill, false, ui.AlignFill)
+	grid.Append(txtAudio,
+		0, 3, 1, 1,
+		true, ui.AlignFill, false, ui.AlignFill)
+	grid.Append(btnOpenAudio,
+		1, 3, 1, 1,
+		false, ui.AlignFill, false, ui.AlignFill)
+
+	// Horizontal Separator
+	grid.Append(ui.NewHorizontalSeparator(),
+		0, 4, 1, 1,
+		false, ui.AlignFill, false, ui.AlignFill)
+
+	// Save Video Controlls
+	lblSaveVideo := ui.NewLabel("Output File:")
+	btnSaveVideo := ui.NewButton("...")
+	txtVideo := ui.NewEntry()
+	txtVideo.SetReadOnly(true)
+	btnSaveVideo.OnClicked(func(*ui.Button) {
+		filename := ui.SaveFile(mainwin)
+		ext := filepath.Ext(filename)
+		if filename == "" {
+			return
+		}
+		if ext != ".mp4" && ext != ".mpeg4" {
+			ui.MsgBoxError(mainwin,
+				"Only MP4 and files are supported at this time",
+				"Only files ending in '.mp4' or '.mpeg4' are supported.")
+			return
+		}
+		txtVideo.SetText(filename)
+		videopath = filename
+	})
+	grid.Append(lblSaveVideo,
+		0, 5, 1, 1,
+		false, ui.AlignFill, false, ui.AlignFill)
+	grid.Append(txtVideo,
+		0, 6, 1, 1,
+		true, ui.AlignFill, false, ui.AlignFill)
+	grid.Append(btnSaveVideo,
+		1, 6, 1, 1,
+		false, ui.AlignFill, false, ui.AlignFill)
+
+	// SUBMIT!
+	btnSubmit := ui.NewButton("Submit")
+	btnSubmit.OnClicked(func(*ui.Button) {
+		fileerror := false
+		msg := ""
+
+		if len(logopath) == 0 {
+			msg += "You haven't specified a logo file.\n"
+			fileerror = true
+		}
+		if len(audiopath) == 0 {
+			msg += "You haven't specified an audio file.\n"
+			fileerror = true
+		}
+		if len(videopath) == 0 {
+			msg += "You haven't specified an output file.\n"
+			fileerror = true
+		}
+
+		if fileerror {
+			ui.MsgBoxError(mainwin,
+				"Error", msg)
+			return
+		}
+		utils.ProcessVideo(logopath, audiopath, videopath)
+		ui.MsgBox(mainwin,
+			"Done",
+			"Completed video processing!")
+	})
+	grid.Append(btnSubmit,
+		0, 7, 2, 1,
+		false, ui.AlignFill, false, ui.AlignFill)
+
+	mainwin.SetChild(hbox)
+
+	mainwin.Show()
 }
 
-// Handlers
-
-func on_logo_file_file_set(fcb *gtk.FileChooserButton) {
-	log.Println(fcb.GetFilename())
-
-	MainWin.LogoImagePath = fcb.GetFilename()
-
-	logoBuf, err := gdk.PixbufNewFromFileAtScale(MainWin.LogoImagePath, 250, 250, true)
-	if err != nil {
-		log.Fatal("Fatal: %v", err)
-		os.Exit(1)
-	}
-
-	MainWin.ImgLogoImage.SetFromPixbuf(logoBuf)
-}
-
-func on_mp3_file_file_set(fcb *gtk.FileChooserButton) {
-	log.Println(fcb.GetFilename())
-
-	MainWin.Mp3FilePath = fcb.GetFilename()
-}
-
-func on_find_save_file_clicked(btn *gtk.Button) {
-	log.Println("Go get file!")
-	dialog, _ := gtk.FileChooserDialogNewWith2Buttons(
-		"Output File",
-		MainWin.Window,
-		gtk.FILE_CHOOSER_ACTION_SAVE,
-		"Cancel",
-		gtk.RESPONSE_CANCEL,
-		"Save",
-		gtk.RESPONSE_ACCEPT)
-
-	// Only MP4s are currently supported as output
-	filter, _ := gtk.FileFilterNew()
-	filter.AddPattern("*.mp4")
-	dialog.SetFilter(filter)
-
-	// If we already have a string, let's dump the user in the same directory
-	if len(MainWin.OutputPath) > 0 {
-		dialog.SetCurrentFolder(filepath.Dir(MainWin.OutputPath))
-		dialog.SetCurrentName(filepath.Base(MainWin.OutputPath))
-	}
-
-	res := dialog.Run()
-	if res != gtk.RESPONSE_ACCEPT {
-		dialog.Destroy()
-		return
-	}
-
-	MainWin.OutputPath = dialog.GetFilename()
-	MainWin.TxtFilePath.SetText(MainWin.OutputPath)
-	log.Println(MainWin.OutputPath)
-
-	dialog.Destroy()
-
-	// Check that the output file is going to be an MP4
-	var mp4regex = regexp.MustCompile(`.*\.mp4$`)
-	if !mp4regex.MatchString(MainWin.OutputPath) {
-		fileError := gtk.MessageDialogNew(
-			MainWin.Window,
-			gtk.DIALOG_MODAL,
-			gtk.MESSAGE_ERROR,
-			gtk.BUTTONS_OK,
-			"Output file must be an mp4.")
-		fileError.Run()
-		fileError.Destroy()
-		on_find_save_file_clicked(btn)
-		return
-	}
-}
-
-func on_submit_clicked(btn *gtk.Button) {
-	log.Println("Push the button!")
-	// Make sure any edits the user has made are picked up
-	MainWin.OutputPath, _ = MainWin.TxtFilePath.GetText()
-	log.Println(MainWin.OutputPath)
-	utils.ProcessVideo(MainWin.LogoImagePath, MainWin.Mp3FilePath, MainWin.OutputPath)
+func GetUI(title string, version string) {
+	wintitle = title
+	progversion = version
+	ui.Main(setupUI)
 }
