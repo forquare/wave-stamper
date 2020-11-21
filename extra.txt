@@ -10,3 +10,14 @@ https://medium.com/@mattholt/packaging-a-go-application-for-macos-f7084b00f6b5
 
 RELEASING
 https://goreleaser.com/
+
+
+
+
+https://github.com/andlabs/ui/wiki/Building-and-Cross-Compilation
+https://goreleaser.com/cookbooks/cgo-and-crosscompiling
+https://github.com/goreleaser/goreleaser/issues/708#issuecomment-408039765
+https://github.com/bep/dockerfiles
+https://github.com/gohugoio/hugo/blob/master/.circleci/config.yml
+https://github.com/gohugoio/hugo
+https://stackoverflow.com/questions/10335747/how-to-download-xcode-dmg-or-xip-file
