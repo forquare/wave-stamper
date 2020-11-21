@@ -5,6 +5,7 @@ import (
 	"os/exec"
 )
 
+// ProcessVideo returns a boolean on whether is was successful or not
 func ProcessVideo(image string, audio string, output string) bool {
 	if !whereis("ffmpeg") {
 		return false

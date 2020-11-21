@@ -4,6 +4,7 @@ import (
 	"path/filepath"
 
 	"github.com/andlabs/ui"
+	// From github.com/andlabs/ui
 	_ "github.com/andlabs/ui/winmanifest"
 
 	"github.com/forquare/wave-stamper/utils"
@@ -175,6 +176,7 @@ func setupUI() {
 	mainwin.Show()
 }
 
+// GetUI will take display and run the GUI
 func GetUI(title string, version string) {
 	wintitle = title
 	progversion = version

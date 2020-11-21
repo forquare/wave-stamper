@@ -1,6 +1,6 @@
 package ui
 
-type CliClient struct {
+type cliClient struct {
 	Version string
 
 	LogoImagePath string
