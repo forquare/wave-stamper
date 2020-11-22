@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	version = "0.1.0"
+	version = ""
 	title   = "Wave Stamper"
 	exeName = "wave-stamper"
 
