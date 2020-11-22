@@ -21,7 +21,9 @@ jobs:
         run: goreleaser check --config goreleaser.yml
 
       - name: Release
-        run: GITHUB_TOKEN=${{secrets.RELEASE_TOKEN}} goreleaser --config goreleaser.yml
+        run: goreleaser --config goreleaser.yml
+        env:
+          GITHUB_TOKEN: ${{secrets.RELEASE_TOKEN}}
 
       - name: Archive artifacts
         uses: actions/upload-artifact@v2
