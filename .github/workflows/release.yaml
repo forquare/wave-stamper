@@ -1,0 +1,30 @@
+name: Release
+
+on:
+  create:
+    tags:
+      - v*
+
+jobs:
+  release:
+    name: Release on GitHub
+    container: forquare/go-cross-builder:1.15.3-6
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v1
+
+      - name: List files
+        run: pwd; ls -ltrRh
+
+      - name: Validates GO releaser config
+        run: goreleaser check --config goreleaser.yml
+
+      - name: Release
+        run: GITHUB_TOKEN=${{secrets.RELEASE_TOKEN}} goreleaser --config goreleaser.yml
+
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist-without-markdown
+          path: dist/wave-stamper-*/*
