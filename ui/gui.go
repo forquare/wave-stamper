@@ -165,10 +165,16 @@ func setupUI() {
 				"Error", msg)
 			return
 		}
-		utils.ProcessVideo(logopath, audiopath, videopath)
-		ui.MsgBox(mainwin,
-			"Done",
-			"Completed video processing!")
+		failedprocessing, msg2 := utils.ProcessVideo(logopath, audiopath, videopath)
+		if failedprocessing > 0 {
+			ui.MsgBoxError(mainwin,
+				"Error", msg2)
+		} else {
+			ui.MsgBox(mainwin,
+				"Done",
+				"Completed video processing!")
+		}
+
 	})
 	grid.Append(btnSubmit,
 		0, 7, 2, 1,
