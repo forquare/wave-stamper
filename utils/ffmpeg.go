@@ -28,7 +28,7 @@ func whereis(name string) bool {
 	var cmd *exec.Cmd
 
 	if runtime.GOOS == "windows" {
-		cmd = exec.Command("cmd", "/C", "where", "ffmpeg")
+		cmd = exec.Command("powershell", "get-command", "ffmpeg")
 	} else {
 		cmd = exec.Command("/bin/sh", "-c", "command -v "+name)
 	}
