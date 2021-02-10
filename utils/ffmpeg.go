@@ -25,15 +25,21 @@ func ProcessVideo(image string, audio string, output string) (int, string) {
 }
 
 func whereis(name string) bool {
-	var cmd *exec.Cmd
-
-	if runtime.GOOS == "windows" {
-		cmd = exec.Command("powershell", "get-command", "ffmpeg")
-	} else {
-		cmd = exec.Command("/bin/sh", "-c", "command -v "+name)
+	var platform = runtime.GOOS
+	var command = []string{"", "ffmpeg"}
+	switch platform {
+	case "windows":
+		command[0] = "where"
+		break
+	default:
+		command[0] = "which"
+		break
 	}
 
-	if err := cmd.Run(); err != nil {
+	cmd := exec.Command(command[0], command[1])
+	err := cmd.Run()
+
+	if err != nil {
 		return false
 	}
 	return true
