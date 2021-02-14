@@ -20,8 +20,13 @@ jobs:
       - name: Validates GO releaser config
         run: goreleaser check --config goreleaser.yml
 
+      - name: Generate release notes
+        run: github-release-notes -org forquare -repo wave-stamper -since-latest-release -include-author > /tmp/release_notes
+        env:
+          GITHUB_TOKEN: ${{secrets.RELEASE_TOKEN}}
+
       - name: Release
-        run: goreleaser --config goreleaser.yml --release-notes <(github-release-notes -org forquare -repo wave-stamper -since-latest-release -include-author)
+        run: goreleaser --config goreleaser.yml --release-notes /tmp/release_notes
         env:
           GITHUB_TOKEN: ${{secrets.RELEASE_TOKEN}}
 
