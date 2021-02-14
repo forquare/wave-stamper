@@ -8,7 +8,7 @@ on:
 jobs:
   release:
     name: Release on GitHub
-    container: forquare/go-cross-builder:1.15.3-6
+    container: forquare/go-cross-builder:1.15.8-7
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
