@@ -21,7 +21,7 @@ jobs:
         run: goreleaser check --config goreleaser.yml
 
       - name: Release
-        run: goreleaser --config goreleaser.yml
+        run: goreleaser --config goreleaser.yml --release-notes <(github-release-notes -org forquare -repo wave-stamper -since-latest-release -include-author)
         env:
           GITHUB_TOKEN: ${{secrets.RELEASE_TOKEN}}
 
